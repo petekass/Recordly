@@ -4,7 +4,7 @@ import { app } from "electron";
 import { reserveInstanceSession, shareSafeStorageKeyWhenReady } from "./instanceSession";
 
 if (process.env["VITE_DEV_SERVER_URL"]) {
-	const devUserDataPath = path.join(app.getPath("appData"), "Recordly-dev");
+	const devUserDataPath = path.join(app.getPath("appData"), "Recordly Local-dev");
 	mkdirSync(path.join(devUserDataPath, "session"), { recursive: true });
 	app.setPath("userData", devUserDataPath);
 	app.setPath("sessionData", path.join(devUserDataPath, "session"));

@@ -11,7 +11,9 @@ import { getUpdateChannelConfiguration } from "./updateChannel";
 const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 const INITIAL_UPDATE_CHECK_DELAY_MS = 1500;
 export const UPDATE_REMINDER_DELAY_MS = 3 * 60 * 60 * 1000;
-const AUTO_UPDATES_DISABLED = process.env.RECORDLY_DISABLE_AUTO_UPDATES === "1";
+// Fork: updates would replace this build with the official release, so they stay
+// off unless explicitly enabled.
+const AUTO_UPDATES_DISABLED = process.env.RECORDLY_ENABLE_AUTO_UPDATES !== "1";
 const UPDATE_FEED_URL_OVERRIDE = process.env.RECORDLY_UPDATE_FEED_URL?.trim() ?? "";
 const UPDATER_LOG_PATH =
 	process.env.RECORDLY_UPDATER_LOG_PATH?.trim() || path.join(USER_DATA_PATH, "updater.log");

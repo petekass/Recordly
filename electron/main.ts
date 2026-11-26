@@ -323,7 +323,7 @@ async function forwardActivationLink(): Promise<boolean> {
 	// server environment, so look for the running development app explicitly.
 	if (!app.isPackaged && findActivationLink(process.argv, "recordly-dev"))
 		return createAppLinkRelay({
-			directory: path.join(app.getPath("appData"), "Recordly-dev", "app-links"),
+			directory: path.join(app.getPath("appData"), "Recordly Local-dev", "app-links"),
 			protocol: "recordly-dev",
 		}).forward();
 	// Repeated clicks on the shortcut bring the running app forward instead of
@@ -1331,11 +1331,13 @@ app.on("second-instance", async (_event, commandLine, _workingDirectory, additio
 app.whenReady().then(async () => {
 	setNativeLocale(String(readAppSetting("recordly.locale") || app.getLocale()));
 	authCallbacks.startDevServer();
-	if (process.defaultApp && process.argv[1]) {
+	// Fork: leave the recordly:// handler to the official app installed next to it.
+	const registerProtocol = process.env.RECORDLY_REGISTER_PROTOCOL === "1";
+	if (registerProtocol && process.defaultApp && process.argv[1]) {
 		app.setAsDefaultProtocolClient(authCallbacks.protocol, process.execPath, [
 			path.resolve(process.argv[1]),
 		]);
-	} else {
+	} else if (registerProtocol) {
 		app.setAsDefaultProtocolClient(authCallbacks.protocol);
 	}
 	const startupAuthCallback = authCallbacks.find(process.argv);
@@ -1356,7 +1358,7 @@ app.whenReady().then(async () => {
 	if (process.platform === "win32" && !process.windowsStore) {
 		// Dev gets its own taskbar identity; sharing the installed app's ID makes
 		// Windows show the installed shortcut's icon for dev windows.
-		app.setAppUserModelId(IS_DEV ? "dev.recordly.app.dev" : "dev.recordly.app");
+		app.setAppUserModelId(IS_DEV ? "dev.peter.recordly-local.dev" : "dev.peter.recordly-local");
 	}
 
 	session.defaultSession.setPermissionCheckHandler(

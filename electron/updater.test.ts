@@ -42,6 +42,8 @@ describe("background updates", () => {
 		vi.resetModules();
 		vi.clearAllMocks();
 		mocks.canInstall.mockReturnValue(true);
+		// The fork disables updates unless this is set; these tests cover the updater itself.
+		vi.stubEnv("RECORDLY_ENABLE_AUTO_UPDATES", "1");
 		vi.useFakeTimers();
 	});
 	afterEach(() => {
@@ -49,6 +51,7 @@ describe("background updates", () => {
 		else delete process.windowsStore;
 		vi.clearAllTimers();
 		vi.useRealTimers();
+		vi.unstubAllEnvs();
 	});
 	async function setup(automaticDownloads: boolean | null = true) {
 		if (automaticDownloads !== null)
@@ -60,6 +63,11 @@ describe("background updates", () => {
 		updater.setupAutoUpdates(() => null, send, mocks.canInstall);
 		return { updater, autoUpdater, send };
 	}
+	it("keeps updates off in the fork unless explicitly enabled", async () => {
+		vi.stubEnv("RECORDLY_ENABLE_AUTO_UPDATES", "");
+		const updater = await import("./updater");
+		expect(updater.isAutoUpdateFeatureEnabled()).toBe(false);
+	});
 	it("downloads silently on discovery and waits for an explicit restart to install", async () => {
 		const { updater, autoUpdater, send } = await setup();
 		autoUpdater.emit("update-available", { version: "1.5.0" });
