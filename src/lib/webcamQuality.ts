@@ -43,6 +43,9 @@ export function getWebcamVideoConstraints(
 		...(deviceId && { deviceId: { exact: deviceId } }),
 		width: { ideal: spec.width },
 		height: { ideal: spec.height },
+		// Without it Chromium may pick a rotated portrait mode (1080x1920) as the
+		// closest match to 4K on a 1080p camera.
+		aspectRatio: { ideal: spec.width / spec.height },
 		frameRate: { ideal: spec.frameRate, max: spec.frameRate },
 	};
 }

@@ -18,6 +18,7 @@ describe("webcam quality", () => {
 			deviceId: { exact: "cam-1" },
 			width: { ideal: 3840 },
 			height: { ideal: 2160 },
+			aspectRatio: { ideal: 16 / 9 },
 			frameRate: { ideal: 30, max: 30 },
 		});
 		expect(getWebcamVideoConstraints("1080p60")).not.toHaveProperty("deviceId");
