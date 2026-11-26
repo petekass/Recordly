@@ -167,6 +167,8 @@ export function registerSettingsHandlers() {
 				webcamEnabled: parsed.webcamEnabled === true,
 				webcamDeviceId:
 					typeof parsed.webcamDeviceId === "string" ? parsed.webcamDeviceId : undefined,
+				webcamQuality:
+					typeof parsed.webcamQuality === "string" ? parsed.webcamQuality : undefined,
 				// Shown by default; only an explicit "hide" is remembered as hidden.
 				floatingWebcamPreviewVisible: parsed.floatingWebcamPreviewVisible !== false,
 			};
@@ -178,6 +180,7 @@ export function registerSettingsHandlers() {
 				systemAudioEnabled: false,
 				webcamEnabled: false,
 				webcamDeviceId: undefined,
+				webcamQuality: undefined,
 				floatingWebcamPreviewVisible: true,
 			};
 		}

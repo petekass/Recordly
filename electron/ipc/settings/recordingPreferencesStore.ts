@@ -9,6 +9,7 @@ export interface RecordingPreferencesPatch {
 	systemAudioEnabled?: boolean;
 	webcamEnabled?: boolean;
 	webcamDeviceId?: string;
+	webcamQuality?: string;
 	floatingWebcamPreviewVisible?: boolean;
 }
 

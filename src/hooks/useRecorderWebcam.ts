@@ -1,12 +1,16 @@
 import { type MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "@/components/ui/toast";
 import { translate } from "@/i18n/runtime";
+import {
+	computeWebcamBitrate,
+	DEFAULT_WEBCAM_QUALITY,
+	type WebcamQuality,
+} from "@/lib/webcamQuality";
 import { getErrorMessage } from "./recordingError";
 import { RecordingFileWriter } from "./recordingFileWriter";
 import { getVideoExtensionForMimeType, selectWebcamRecordingMimeType } from "./recordingMimeType";
 import { acquireWebcamCapture, type WebcamCapture } from "./webcamCapture";
 
-const WEBCAM_BITRATE = 8_000_000;
 const RECORDER_TIMESLICE_MS = 250;
 const RECORDING_FILE_PREFIX = "recording-";
 const WEBCAM_SUFFIX = "-webcam";
@@ -15,6 +19,7 @@ type RecorderWebcamOptions = {
 	isMacOS: boolean;
 	webcamEnabled: boolean;
 	webcamDeviceId: string | undefined;
+	webcamQuality?: WebcamQuality;
 	recordingSessionTimestamp: MutableRefObject<number | null>;
 	getRecordingDurationMs: (stoppedAt: number) => number;
 };
@@ -24,6 +29,7 @@ export function useRecorderWebcam({
 	isMacOS,
 	webcamEnabled,
 	webcamDeviceId,
+	webcamQuality = DEFAULT_WEBCAM_QUALITY,
 	recordingSessionTimestamp,
 	getRecordingDurationMs,
 }: RecorderWebcamOptions) {
@@ -138,7 +144,7 @@ export function useRecorderWebcam({
 				if (!permission.success || permission.camera !== "granted")
 					throw new Error("Camera access must be granted in Camera settings.");
 			}
-			const capture = await acquireWebcamCapture(webcamDeviceId);
+			const capture = await acquireWebcamCapture(webcamDeviceId, webcamQuality);
 			if (generation !== webcamCaptureGeneration.current) {
 				capture.release();
 				return;
@@ -146,11 +152,18 @@ export function useRecorderWebcam({
 			webcamCapture.current = capture;
 
 			const settings = capture.stream.getVideoTracks?.()[0]?.getSettings?.();
+			const videoBitsPerSecond = computeWebcamBitrate(
+				settings?.width,
+				settings?.height,
+				settings?.frameRate,
+				webcamQuality,
+			);
 			console.info("[Recorder] Webcam capture settings", {
-				requestedFrameRate: 60,
+				requestedQuality: webcamQuality,
 				frameRate: settings?.frameRate ?? null,
 				width: settings?.width ?? null,
 				height: settings?.height ?? null,
+				videoBitsPerSecond,
 			});
 
 			const mimeType = selectWebcamRecordingMimeType();
@@ -163,7 +176,7 @@ export function useRecorderWebcam({
 			pendingWebcamPathPromise.current = webcamStopPromise.current;
 
 			const recorder = new MediaRecorder(capture.stream, {
-				videoBitsPerSecond: WEBCAM_BITRATE,
+				videoBitsPerSecond,
 				...(mimeType ? { mimeType } : {}),
 			});
 
@@ -229,6 +242,7 @@ export function useRecorderWebcam({
 		releaseUnavailableWebcam,
 		webcamDeviceId,
 		webcamEnabled,
+		webcamQuality,
 	]);
 
 	/** Start the prepared webcam MediaRecorder after the main recording begins. */

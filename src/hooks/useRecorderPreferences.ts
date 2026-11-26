@@ -8,6 +8,11 @@ import {
 	requestMissingRecordingPermissions,
 } from "@/lib/recordingPermissions";
 import {
+	DEFAULT_WEBCAM_QUALITY,
+	normalizeWebcamQuality,
+	type WebcamQuality,
+} from "@/lib/webcamQuality";
+import {
 	type BrowserMicrophoneProfile,
 	DEFAULT_BROWSER_MICROPHONE_PROFILE,
 	normalizeBrowserMicrophoneProfile,
@@ -24,6 +29,8 @@ export function useRecorderPreferences() {
 	const [webcamEnabled, setWebcamEnabled] = useState(false);
 
 	const [webcamDeviceId, setWebcamDeviceId] = useState<string | undefined>(undefined);
+
+	const [webcamQuality, setWebcamQuality] = useState<WebcamQuality>(DEFAULT_WEBCAM_QUALITY);
 
 	const [countdownDelay, setCountdownDelayState] = useState(3);
 
@@ -42,6 +49,7 @@ export function useRecorderPreferences() {
 		systemAudioEnabled: false,
 		webcamEnabled: false,
 		webcamDeviceId: false,
+		webcamQuality: false,
 		countdownDelay: false,
 	});
 
@@ -130,6 +138,9 @@ export function useRecorderPreferences() {
 				if (!edited.current.webcamDeviceId && result.webcamDeviceId) {
 					setWebcamDeviceId(result.webcamDeviceId);
 				}
+				if (!edited.current.webcamQuality) {
+					setWebcamQuality(normalizeWebcamQuality(result.webcamQuality));
+				}
 			}
 		})();
 	}, []);
@@ -170,6 +181,12 @@ export function useRecorderPreferences() {
 		setWebcamDeviceId(deviceId);
 		void window.electronAPI.setRecordingPreferences({ webcamDeviceId: deviceId });
 	}, []);
+
+	const persistWebcamQuality = useCallback((quality: WebcamQuality) => {
+		edited.current.webcamQuality = true;
+		setWebcamQuality(quality);
+		void window.electronAPI.setRecordingPreferences({ webcamQuality: quality });
+	}, []);
 	return {
 		isMacOS,
 		microphoneEnabled,
@@ -178,6 +195,7 @@ export function useRecorderPreferences() {
 		systemAudioEnabled,
 		webcamEnabled,
 		webcamDeviceId,
+		webcamQuality,
 		countdownDelay,
 		browserMicrophoneProfile,
 		requestedBrowserMicrophoneProfile,
@@ -188,5 +206,6 @@ export function useRecorderPreferences() {
 		persistSystemAudioEnabled,
 		persistWebcamEnabled,
 		persistWebcamDeviceId,
+		persistWebcamQuality,
 	};
 }

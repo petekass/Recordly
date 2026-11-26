@@ -1,3 +1,9 @@
+import {
+	DEFAULT_WEBCAM_QUALITY,
+	getWebcamVideoConstraints,
+	type WebcamQuality,
+} from "@/lib/webcamQuality";
+
 export interface WebcamCapture {
 	stream: MediaStream;
 	release: () => void;
@@ -7,20 +13,28 @@ interface ActiveWebcam {
 	request: Promise<MediaStream>;
 	stream?: MediaStream;
 	users: number;
+	quality: WebcamQuality;
 }
 
-const activeWebcams = new Map<string | undefined, ActiveWebcam>();
+// Keyed by device and quality: preview and recorder share one stream per mode.
+const activeWebcams = new Map<string, ActiveWebcam>();
+const captureKey = (deviceId: string | undefined, quality: WebcamQuality) =>
+	`${deviceId ?? ""}|${quality}`;
 
-export async function acquireWebcamCapture(deviceId?: string): Promise<WebcamCapture> {
+export async function acquireWebcamCapture(
+	deviceId?: string,
+	quality: WebcamQuality = DEFAULT_WEBCAM_QUALITY,
+): Promise<WebcamCapture> {
 	if (deviceId === "default") deviceId = undefined;
-	let capture = activeWebcams.get(deviceId);
+	let capture = activeWebcams.get(captureKey(deviceId, quality));
 	if (!capture && deviceId) {
 		capture = [...activeWebcams.values()].find(
 			(candidate) =>
+				candidate.quality === quality &&
 				candidate.stream?.active &&
 				candidate.stream.getVideoTracks()[0]?.getSettings().deviceId === deviceId,
 		);
-		const defaultCapture = activeWebcams.get(undefined);
+		const defaultCapture = activeWebcams.get(captureKey(undefined, quality));
 		if (!capture && defaultCapture && !defaultCapture.stream) {
 			const pendingDefault = await retainWebcam(defaultCapture).catch(() => undefined);
 			if (
@@ -30,23 +44,19 @@ export async function acquireWebcamCapture(deviceId?: string): Promise<WebcamCap
 				return pendingDefault;
 			}
 			pendingDefault?.release();
-			return acquireWebcamCapture(deviceId);
+			return acquireWebcamCapture(deviceId, quality);
 		}
 	}
 	if (!capture || capture.stream?.active === false) {
 		capture = {
 			request: navigator.mediaDevices.getUserMedia({
 				audio: false,
-				video: {
-					...(deviceId && { deviceId: { exact: deviceId } }),
-					width: { ideal: 1280 },
-					height: { ideal: 720 },
-					frameRate: { ideal: 60, max: 60 },
-				},
+				video: getWebcamVideoConstraints(quality, deviceId),
 			}),
 			users: 0,
+			quality,
 		};
-		activeWebcams.set(deviceId, capture);
+		activeWebcams.set(captureKey(deviceId, quality), capture);
 	}
 	return retainWebcam(capture);
 }

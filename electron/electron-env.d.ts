@@ -1343,6 +1343,7 @@ interface Window {
 			systemAudioEnabled: boolean;
 			webcamEnabled: boolean;
 			webcamDeviceId?: string;
+			webcamQuality?: string;
 			floatingWebcamPreviewVisible: boolean;
 		}>;
 		getRecordingAudioLabConfig: () => Promise<{
@@ -1355,6 +1356,7 @@ interface Window {
 			systemAudioEnabled?: boolean;
 			webcamEnabled?: boolean;
 			webcamDeviceId?: string;
+			webcamQuality?: string;
 			floatingWebcamPreviewVisible?: boolean;
 		}) => Promise<{ success: boolean; error?: string }>;
 		/** Countdown timer before recording */

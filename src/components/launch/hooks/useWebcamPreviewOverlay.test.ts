@@ -228,7 +228,7 @@ describe("floating webcam preview lifecycle and pointer ownership", () => {
 		preview.setRecordingWebcamPreviewNode(floatingVideo as unknown as HTMLVideoElement);
 		expect(getUserMedia).toHaveBeenCalledWith(
 			expect.objectContaining({
-				video: expect.objectContaining({ frameRate: { ideal: 60, max: 60 } }),
+				video: expect.objectContaining({ frameRate: { ideal: 30, max: 30 } }),
 			}),
 		);
 		await vi.waitFor(() => {

@@ -1,11 +1,17 @@
 import type { ReactElement } from "react";
 import {
+	Check,
 	Eye,
 	EyeSlash as EyeOff,
 	VideoCamera as Video,
 	VideoCameraSlash as VideoOff,
 } from "@/components/ui/icons";
 import { useI18n, useScopedT } from "@/contexts/I18nContext";
+import {
+	getWebcamQualitySpec,
+	WEBCAM_QUALITY_PRESETS,
+	type WebcamQuality,
+} from "@/lib/webcamQuality";
 import type { WebcamShape } from "../../video-editor/types";
 import { getWebcamClipPath } from "../../video-editor/webcamOverlay";
 import { WebcamUnavailable } from "../WebcamUnavailable";
@@ -31,6 +37,8 @@ export function WebcamPopover({
 	setWebcamPreviewNode,
 	videoDevices,
 	webcamDeviceId,
+	webcamQuality,
+	onSelectWebcamQuality,
 	selectedVideoDeviceId,
 	onSelectVideoDevice,
 }: {
@@ -49,6 +57,8 @@ export function WebcamPopover({
 	setWebcamPreviewNode: (node: HTMLVideoElement | null) => void;
 	videoDevices: DeviceOption[];
 	webcamDeviceId?: string;
+	webcamQuality: WebcamQuality;
+	onSelectWebcamQuality: (quality: WebcamQuality) => void;
 	selectedVideoDeviceId?: string;
 	onSelectVideoDevice: (deviceId: string) => void;
 }) {
@@ -159,6 +169,28 @@ export function WebcamPopover({
 						{device.label}
 					</DropdownItem>
 				))}
+			{cameraAllowed && webcamEnabled && (
+				<>
+					<div className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--launch-label)]">
+						{t("recording.webcamQuality", "Camera quality")}
+					</div>
+					{WEBCAM_QUALITY_PRESETS.map((quality) => (
+						<DropdownItem
+							key={quality}
+							icon={
+								<Check
+									size={16}
+									className={webcamQuality === quality ? "" : "opacity-0"}
+								/>
+							}
+							selected={webcamQuality === quality}
+							onClick={() => onSelectWebcamQuality(quality)}
+						>
+							{getWebcamQualitySpec(quality).label}
+						</DropdownItem>
+					))}
+				</>
+			)}
 			{cameraAllowed && videoDevices.length === 0 && (
 				<div className="text-center text-xs text-[var(--launch-text-muted)] py-4">
 					{t("recording.noWebcamsFound")}

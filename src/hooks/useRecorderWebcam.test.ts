@@ -213,14 +213,14 @@ describe("recorder webcam sidecar", () => {
 		await webcam.prepareWebcamRecorder();
 		expect(getUserMedia).toHaveBeenCalledWith({
 			video: {
-				width: { ideal: 1280 },
-				height: { ideal: 720 },
-				frameRate: { ideal: 60, max: 60 },
+				width: { ideal: 1920 },
+				height: { ideal: 1080 },
+				frameRate: { ideal: 30, max: 30 },
 			},
 			audio: false,
 		});
 		expect(recorder().options).toEqual({
-			videoBitsPerSecond: 8_000_000,
+			videoBitsPerSecond: 12_441_600,
 			mimeType: "video/webm;codecs=h264",
 		});
 		expect(recorder().start).not.toHaveBeenCalled();
@@ -239,8 +239,9 @@ describe("recorder webcam sidecar", () => {
 		await webcam.prepareWebcamRecorder();
 		expect(FakeMediaRecorder.instances).toHaveLength(1);
 		expect(console.info).toHaveBeenCalledWith("[Recorder] Webcam capture settings", {
-			requestedFrameRate: 60,
+			requestedQuality: "1080p30",
 			...settings,
+			videoBitsPerSecond: 8_000_000,
 		});
 		await webcam.stopWebcamRecorder();
 	});

@@ -79,6 +79,8 @@ function LaunchWindowContent() {
 		setWebcamEnabled,
 		webcamDeviceId,
 		setWebcamDeviceId,
+		webcamQuality,
+		setWebcamQuality,
 		countdownDelay,
 		setCountdownDelay,
 		preparePermissions,
@@ -114,6 +116,7 @@ function LaunchWindowContent() {
 	const webcamPreview = useWebcamPreviewOverlay({
 		webcamEnabled: webcamEnabled && (cameraAllowed || Boolean(webcamRecordingError)),
 		webcamDeviceId,
+		webcamQuality,
 		webcamRecordingError,
 		showWebcamControls,
 		webcamPopoverOpen,
@@ -460,6 +463,8 @@ function LaunchWindowContent() {
 				setWebcamPreviewNode={setWebcamPreviewNode}
 				videoDevices={videoDevices}
 				webcamDeviceId={webcamDeviceId}
+				webcamQuality={webcamQuality}
+				onSelectWebcamQuality={setWebcamQuality}
 				selectedVideoDeviceId={selectedVideoDeviceId}
 				onSelectVideoDevice={(deviceId) => {
 					setWebcamEnabled(true);

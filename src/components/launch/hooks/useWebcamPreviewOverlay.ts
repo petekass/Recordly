@@ -7,6 +7,7 @@ import {
 	useState,
 } from "react";
 import { getErrorMessage } from "@/hooks/recordingError";
+import { DEFAULT_WEBCAM_QUALITY, type WebcamQuality } from "@/lib/webcamQuality";
 import { acquireWebcamCapture, type WebcamCapture } from "../../../hooks/webcamCapture";
 import { loadEditorPreferences } from "../../video-editor/editorPreferences";
 import { canShowFloatingWebcamPreview } from "../floatingWebcamPreview";
@@ -16,6 +17,7 @@ import { useWebcamPreviewPointer } from "./useWebcamPreviewPointer";
 export function useWebcamPreviewOverlay({
 	webcamEnabled,
 	webcamDeviceId,
+	webcamQuality = DEFAULT_WEBCAM_QUALITY,
 	webcamRecordingError,
 	showWebcamControls,
 	webcamPopoverOpen,
@@ -24,6 +26,7 @@ export function useWebcamPreviewOverlay({
 }: {
 	webcamEnabled: boolean;
 	webcamDeviceId?: string;
+	webcamQuality?: WebcamQuality;
 	webcamRecordingError?: string | null;
 	showWebcamControls: boolean;
 	webcamPopoverOpen: boolean;
@@ -167,7 +170,7 @@ export function useWebcamPreviewOverlay({
 			}
 
 			try {
-				capture = await acquireWebcamCapture(webcamDeviceId);
+				capture = await acquireWebcamCapture(webcamDeviceId, webcamQuality);
 
 				if (!mounted) {
 					capture.release();
@@ -203,7 +206,7 @@ export function useWebcamPreviewOverlay({
 				previewStreamRef.current = null;
 			}
 		};
-	}, [attachPreviewStreamToNode, shouldStreamWebcamPreview, webcamDeviceId]);
+	}, [attachPreviewStreamToNode, shouldStreamWebcamPreview, webcamDeviceId, webcamQuality]);
 
 	return {
 		editorMode,

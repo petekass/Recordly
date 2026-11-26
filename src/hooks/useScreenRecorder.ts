@@ -1,3 +1,4 @@
+import type { WebcamQuality } from "@/lib/webcamQuality";
 import { useRecorderCaptureSetup } from "./useRecorderCaptureSetup";
 import { useRecorderClock } from "./useRecorderClock";
 import { useRecorderControls } from "./useRecorderControls";
@@ -51,6 +52,8 @@ type UseScreenRecorderReturn = {
 	setWebcamEnabled: (enabled: boolean) => void;
 	webcamDeviceId: string | undefined;
 	setWebcamDeviceId: (deviceId: string | undefined) => void;
+	webcamQuality: WebcamQuality;
+	setWebcamQuality: (quality: WebcamQuality) => void;
 	countdownDelay: number;
 	setCountdownDelay: (delay: number) => void;
 };
@@ -99,6 +102,8 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 		persistWebcamEnabled,
 		webcamDeviceId,
 		persistWebcamDeviceId,
+		webcamQuality,
+		persistWebcamQuality,
 		countdownDelay,
 		setCountdownDelay,
 	} = { ...context, ...controls };
@@ -127,6 +132,8 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 		setWebcamEnabled: persistWebcamEnabled,
 		webcamDeviceId,
 		setWebcamDeviceId: persistWebcamDeviceId,
+		webcamQuality,
+		setWebcamQuality: persistWebcamQuality,
 		countdownDelay,
 		setCountdownDelay,
 	};
